@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAttend - University Attendance Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased">
+
+    <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-x-80 transition-all duration-300 bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center gap-3 hidden shadow-2xl">
+        <div id="toastIconContainer" class="p-2 rounded-lg"></div>
+        <div>
+            <h4 id="toastTitle" class="text-xs font-bold text-white uppercase tracking-wider">Message</h4>
+            <p id="toastMessage" class="text-slate-400 text-xs mt-0.5"></p>
+        </div>
+    </div>
+
+    <div id="appContainer" class="min-h-screen flex flex-col justify-between">
+        
+        <header id="appNavbar" class="bg-slate-950 border-b border-slate-800 px-6 py-4 flex justify-between items-center hidden">
+            <div class="flex items-center gap-2.5 font-black text-lg tracking-wider text-emerald-400">
+                <i data-lucide="shield-check" class="w-5 h-5"></i> EduAttend
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p id="navUserIdentity" class="text-xs font-bold text-white"></p>
+                    <p id="navUserRoleBadge" class="text-[10px] text-slate-500 font-mono uppercase tracking-widest mt-0.5"></p>
+                </div>
+                <button onclick="executeLogout()" class="p-2.5 bg-slate-900 hover:bg-rose-950/40 hover:text-rose-400 border border-slate-800 hover:border-rose-900/50 rounded-xl transition cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+
+            <section id="authGateway" class="w-full max-w-md bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+                <div class="text-center mb-8">
+                    <div class="inline-flex p-3 bg-emerald-950/50 border border-emerald-800/40 text-emerald-400 rounded-2xl mb-3">
+                        <i data-lucide="fingerprint" class="w-8 h-8"></i>
+                    </div>
+                    <h2 id="authGatewayHeading" class="text-2xl font-black text-white tracking-tight">Access Gate Gateway</h2>
+                    <p id="authGatewaySubtext" class="text-slate-400 text-xs mt-1">Provide credential records to synchronize session tokens.</p>
+                </div>
+
+                <form id="authForm" onsubmit="handleAuthSubmission(event)" class="space-y-4">
+                    <div id="registerNameGroup" class="hidden">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="authName">Full Name</label>
+                        <input id="authName" type="text" placeholder="John Doe" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="authEmail">Institutional Email</label>
+                        <input id="authEmail" type="email" required placeholder="name@university.edu" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="authPassword">Password</label>
+                        <input id="authPassword" type="password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="authRole">Portal Assignment Profile</label>
+                        <select id="authRole" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="student">Student Portal Access</option>
+                            <option value="instructor">Faculty Instructor Access</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="authSubmitButton" class="w-full bg-emerald-600 hover:bg-emerald-500 font-bold text-sm text-white py-3 rounded-xl shadow-lg shadow-emerald-900/20 transition duration-200 mt-6 cursor-pointer">
+                        Sign In to Dashboard
+                    </button>
+                </form>
+
+                <div class="text-center mt-6 pt-4 border-t border-slate-900">
+                    <p class="text-xs text-slate-500">
+                        <span id="toggleAuthModeText">New to the university portal?</span>
+                        <button onclick="toggleAuthenticationViewMode()" id="toggleAuthModeBtn" class="text-emerald-400 font-bold ml-1 hover:underline focus:outline-none cursor-pointer">Create Account</button>
+                    </p>
+                </div>
+            </section>
+
+            <section id="studentDashboard" class="w-full max-w-4xl bg-slate-950 border border-slate-800 rounded-2xl p-6 hidden shadow-2xl">
+                <div class="mb-6">
+                    <h2 class="text-xl font-black text-white">My Academic Course Schedules</h2>
+                    <p class="text-slate-400 text-xs">Select an assigned stream below to instantly file your daily active attendance validation timestamp.</p>
+                </div>
+
+                <div id="studentCourseGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    </div>
+            </section>
+
+            <section id="instructorDashboard" class="w-full max-w-5xl bg-slate-950 border border-slate-800 rounded-2xl p-6 hidden shadow-2xl">
+                <div class="sm:flex justify-between items-center mb-6 pb-4 border-b border-slate-900">
+                    <div>
+                        <h2 class="text-xl font-black text-white">Faculty Curriculum Matrix</h2>
+                        <p class="text-slate-400 text-xs mt-0.5">Publish courses, orchestrate enrollments, and check active roster logs.</p>
+                    </div>
+                    <button onclick="openCourseCreationModal()" class="mt-3 sm:mt-0 bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 transition cursor-pointer">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Establish New Course
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="space-y-3 xl:col-span-1">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Monitored Courses</h3>
+                        <div id="instructorCourseStack" class="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                            </div>
+                    </div>
+
+                    <div class="bg-slate-900/60 border border-slate-850 rounded-xl p-4 xl:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 id="rosterTitle" class="text-sm font-bold text-white">Course Roster Audit Grid</h3>
+                                <p id="rosterSub" class="text-[11px] text-slate-500">Select an active program catalog to trace attendance files.</p>
+                            </div>
+                            <span id="rosterStatsBadge" class="hidden text-[10px] bg-slate-800 font-mono text-slate-300 font-bold px-2 py-1 rounded-md"></span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-800 text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                                        <th class="pb-2.5">Student Learner Account</th>
+                                        <th class="pb-2.5 text-center">Timestamp Logs</th>
+                                        <th class="pb-2.5 text-right">Verification Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rosterTableBody" class="text-xs divide-y divide-slate-850/40 text-slate-300">
+                                    <tr>
+                                        <td colspan="3" class="text-center py-8 text-slate-500 italic">No course target currently loaded. Choose a program to view entries.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <div id="courseModal" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-black text-white tracking-tight">Create Educational Course</h3>
+                    <button onclick="closeCourseCreationModal()" class="text-slate-500 hover:text-white transition cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+                <form onsubmit="handleCourseCreation(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="modalCourseName">Course Title</label>
+                        <input id="modalCourseName" type="text" required placeholder="Advanced Web Engineering (CS-402)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="modalCourseSchedule">Schedule Timeline</label>
+                        <input id="modalCourseSchedule" type="text" required placeholder="Mon / Wed - 10:00 AM" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white py-2.5 rounded-xl transition cursor-pointer">
+                        Deploy Course into Repository
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <footer class="bg-slate-950 border-t border-slate-900 px-6 py-4 text-center text-[11px] text-slate-600 font-mono tracking-wide">
+            Codesoft Software Architecture Engineering Task 5 — Built Container Protected Session Logs
+        </footer>
+    </div>
+
+    <script>
+        // Start Global Application Icons
+        lucide.createIcons();
+
+        // --- DATABASE SEED LAYER (LOCALSTORAGE IMPLEMENTATION) ---
+        function getDatabase() {
+            if (!localStorage.getItem('edu_db')) {
+                const initialSeed = {
+                    users: [
+                        { email: "prof.btech@codesoft.edu", password: "password123", name: "Dr. Swarna Priya", role: "instructor" },
+                        { email: "student.cse@codesoft.edu", password: "password123", name: "K. Swarna Priya", role: "student" }
+                    ],
+                    courses: [
+                        { id: "c1", title: "Full-Stack System Engineering (FS-301)", schedule: "Mon/Wed 09:00 AM", instructor: "prof.btech@codesoft.edu" },
+                        { id: "c2", title: "Automated Software Testing & QA (QA-402)", schedule: "Tue/Thu 11:30 AM", instructor: "prof.btech@codesoft.edu" }
+                    ],
+                    attendance: [
+                        { id: "a1", courseId: "c1", studentEmail: "student.cse@codesoft.edu", timestamp: "07/07/2026, 09:15 AM", status: "Verified" }
+                    ]
+                };
+                localStorage.setItem('edu_db', JSON.stringify(initialSeed));
+            }
+            return JSON.parse(localStorage.getItem('edu_db'));
+        }
+
+        function saveDatabase(data) {
+            localStorage.setItem('edu_db', JSON.stringify(data));
+        }
+
+        // Global Variable Session Storage
+        let currentUserSession = null;
+        let activeAuthenticationMode = "login"; // State track: login / register
+        let currentlySelectedInstructorCourseId = null;
+
+        // --- INTERACTIVE TOAST MANAGER / SECURITY HANDLER ---
+        function displayToast(title, msg, variance = "success") {
+            const container = document.getElementById('toastNotification');
+            const iconBox = document.getElementById('toastIconContainer');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMessage').innerText = msg;
+
+            if(variance === "success") {
+                iconBox.className = "p-2 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/30";
+                iconBox.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i>`;
+            } else {
+                iconBox.className = "p-2 rounded-lg bg-rose-950 text-rose-400 border border-rose-800/30";
+                iconBox.innerHTML = `<i data-lucide="alert-octagon" class="w-4 h-4"></i>`;
+            }
+            
+            lucide.createIcons();
+            container.classList.remove('hidden');
+            setTimeout(() => { container.classList.remove('translate-x-80'); }, 10);
+            
+            setTimeout(() => {
+                container.classList.add('translate-x-80');
+                setTimeout(() => { container.classList.add('hidden'); }, 300);
+            }, 4000);
+        }
+
+        // --- REGISTRATION / AUTH TRACK SWITCHERS ---
+        function toggleAuthenticationViewMode() {
+            const nameGrp = document.getElementById('registerNameGroup');
+            const heading = document.getElementById('authGatewayHeading');
+            const subtext = document.getElementById('authGatewaySubtext');
+            const submitBtn = document.getElementById('authSubmitButton');
+            const modeText = document.getElementById('toggleAuthModeText');
+            const modeBtn = document.getElementById('toggleAuthModeBtn');
+
+            if(activeAuthenticationMode === "login") {
+                activeAuthenticationMode = "register";
+                nameGrp.classList.remove('hidden');
+                heading.innerText = "Create Institutional Profile";
+                subtext.innerText = "Register your credentials to secure access badges.";
+                submitBtn.innerText = "Register Account";
+                modeText.innerText = "Already possess verification tokens?";
+                modeBtn.innerText = "Login Here";
+            } else {
+                activeAuthenticationMode = "login";
+                nameGrp.classList.add('hidden');
+                heading.innerText = "Access Gate Gateway";
+                subtext.innerText = "Provide credential records to synchronize session tokens.";
+                submitBtn.innerText = "Sign In to Dashboard";
+                modeText.innerText = "New to the university portal?";
+                modeBtn.innerText = "Create Account";
+            }
+        }
+
+        // --- CORE SESSION WORKFLOW CONTROLLERS ---
+        function handleAuthSubmission(e) {
+            e.preventDefault();
+            const db = getDatabase();
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName').value.trim();
+            const role = document.getElementById('authRole').value;
+
+            if(activeAuthenticationMode === "register") {
+                if(!name) { displayToast("Input Error", "Please input full identifier string.", "error"); return; }
+                if(db.users.some(u => u.email === email)) { displayToast("Security Alert", "Email handle already initialized in database.", "error"); return; }
+
+                db.users.push({ email, password, name, role });
+                saveDatabase(db);
+                displayToast("Success", "Institutional credential saved! Redirecting to setup login.", "success");
+                toggleAuthenticationViewMode();
+            } else {
+                const targetUser = db.users.find(u => u.email === email && u.password === password);
+                if(!targetUser) { displayToast("Authentication Refused", "Invalid credentials matching key indexes.", "error"); return; }
+
+                currentUserSession = targetUser;
+                displayToast("Token Validated", `Welcome back, ${currentUserSession.name}`, "success");
+                syncViewports();
+            }
+        }
+
+        function syncViewports() {
+            document.getElementById('authGateway').classList.add('hidden');
+            document.getElementById('appNavbar').classList.remove('hidden');
+            
+            document.getElementById('navUserIdentity').innerText = currentUserSession.name;
+            document.getElementById('navUserRoleBadge').innerText = currentUserSession.role;
+
+            if(currentUserSession.role === "student") {
+                document.getElementById('studentDashboard').classList.remove('hidden');
+                renderStudentCourses();
+            } else {
+                document.getElementById('instructorDashboard').classList.remove('hidden');
+                renderInstructorModule();
+            }
+        }
+
+        function executeLogout() {
+            currentUserSession = null;
+            currentlySelectedInstructorCourseId = null;
+            document.getElementById('appNavbar').classList.add('hidden');
+            document.getElementById('studentDashboard').classList.add('hidden');
+            document.getElementById('instructorDashboard').classList.add('hidden');
+            document.getElementById('authGateway').classList.remove('hidden');
+            document.getElementById('authForm').reset();
+            displayToast("Session Terminated", "Security clearing accomplished successfully.", "success");
+        }
+
+        // --- MODULE RUNNER: STUDENT DASHBOARD RENDERING ---
+        function renderStudentCourses() {
+            const db = getDatabase();
+            const targetGrid = document.getElementById('studentCourseGrid');
+            targetGrid.innerHTML = "";
+
+            db.courses.forEach(course => {
+                const alreadyFiled = db.attendance.some(a => a.courseId === course.id && a.studentEmail === currentUserSession.email);
+                
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 border border-slate-800 p-5 rounded-xl hover:border-slate-700 transition flex flex-col justify-between gap-4";
+                card.innerHTML = `
+                    <div>
+                        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-900 px-2 py-0.5 rounded-md uppercase tracking-wider">${course.schedule}</span>
+                        <h4 class="text-sm font-bold text-white mt-2.5">${course.title}</h4>
+                        <p class="text-xs text-slate-500 mt-1">Instructor Monitor ID: ${course.instructor}</p>
+                    </div>
+                    <div>
+                        ${alreadyFiled ? `
+                            <div class="w-full bg-slate-950 border border-emerald-900/40 text-emerald-400 p-2.5 rounded-xl text-center text-xs font-mono font-bold flex items-center justify-center gap-1.5">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Attendance Verified
+                            </div>
+                        ` : `
+                            <button onclick="fileStudentAttendance('${course.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 font-semibold text-xs text-white py-2.5 rounded-xl transition cursor-pointer flex items-center justify-center gap-1">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Check-In & Log Attendance
+                            </button>
+                        `}
+                    </div>
+                `;
+                targetGrid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function fileStudentAttendance(courseId) {
+            const db = getDatabase();
+            const dateString = new Date().toLocaleString('en-US', { hour12: true });
+
+            db.attendance.push({
+                id: "a_" + Math.random().toString(36).substr(2, 9),
+                courseId: courseId,
+                studentEmail: currentUserSession.email,
+                timestamp: dateString,
+                status: "Verified"
+            });
+
+            saveDatabase(db);
+            displayToast("Log Entry Filed", "Daily attendance packet written successfully into repository ledger.", "success");
+            renderStudentCourses();
+        }
+
+        // --- MODULE RUNNER: INSTRUCTOR DATA ARCHITECTURE ---
+        function renderInstructorModule() {
+            const db = getDatabase();
+            const container = document.getElementById('instructorCourseStack');
+            container.innerHTML = "";
+
+            const filteredCourses = db.courses.filter(c => c.instructor === currentUserSession.email);
+
+            if(filteredCourses.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-4">No managed tracks registered.</p>`;
+                return;
+            }
+
+            filteredCourses.forEach(course => {
+                const isActive = currentlySelectedInstructorCourseId === course.id;
+                const element = document.createElement('button');
+                element.onclick = function() { selectCourseRoster(course.id); };
+                element.className = `w-full text-left p-3.5 rounded-xl border text-xs transition block cursor-pointer ${isActive ? 'bg-emerald-950/40 border-emerald-700 text-white font-bold' : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'}`;
+                element.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-mono text-[9px] text-slate-500 uppercase tracking-wider">${course.schedule}</span>
+                    </div>
+                    <p class="mt-1 font-semibold truncate">${course.title}</p>
+                `;
+                container.appendChild(element);
+            });
+
+            if(currentlySelectedInstructorCourseId) {
+                renderSelectedRoster();
+            }
+        }
+
+        function selectCourseRoster(courseId) {
+            currentlySelectedInstructorCourseId = courseId;
+            renderInstructorModule();
+        }
+
+        function renderSelectedRoster() {
+            const db = getDatabase();
+            const targetCourse = db.courses.find(c => c.id === currentlySelectedInstructorCourseId);
+            const records = db.attendance.filter(a => a.courseId === currentlySelectedInstructorCourseId);
+            
+            document.getElementById('rosterTitle').innerText = `Roster Audit: ${targetCourse.title}`;
+            document.getElementById('rosterSub').innerText = `Displaying verified security signature files tracking ledger entries.`;
+            
+            const badge = document.getElementById('rosterStatsBadge');
+            badge.classList.remove('hidden');
+            badge.innerText = `Total Logs: ${records.length}`;
+
+            const tbody = document.getElementById('rosterTableBody');
+            tbody.innerHTML = "";
+
+            if(records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-slate-500 italic">No attendance records found for this course tracking sequence.</td></tr>`;
+                return;
+            }
+
+            records.forEach(record => {
+                // Find user meta mappings
+                const userObj = db.users.find(u => u.email === record.studentEmail);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/40 transition";
+                tr.innerHTML = `
+                    <td class="py-3 font-medium text-white">
+                        <p class="text-xs font-bold">${userObj ? userObj.name : 'Unknown Account'}</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">${record.studentEmail}</p>
+                    </td>
+                    <td class="py-3 text-center text-slate-400 font-mono text-[11px]">${record.timestamp}</td>
+                    <td class="py-3 text-right">
+                        <span class="inline-flex items-center gap-1 text-[10px] bg-emerald-950/80 border border-emerald-900 text-emerald-400 px-2 py-0.5 rounded-sm font-bold uppercase tracking-wider">
+                            <span class="w-1 h-1 rounded-full bg-emerald-400"></span> Verified
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- COURSE DEPLOYMENT MODAL PROVISIONERS ---
+        function openCourseCreationModal() { document.getElementById('courseModal').classList.remove('hidden'); }
+        function closeCourseCreationModal() { document.getElementById('courseModal').classList.add('hidden'); }
+
+        function handleCourseCreation(e) {
+            e.preventDefault();
+            const db = getDatabase();
+            const title = document.getElementById('modalCourseName').value.trim();
+            const schedule = document.getElementById('modalCourseSchedule').value.trim();
+
+            const newCourse = {
+                id: "c_" + Math.random().toString(36).substr(2, 9),
+                title,
+                schedule,
+                instructor: currentUserSession.email
+            };
+
+            db.courses.push(newCourse);
+            saveDatabase(db);
+            
+            displayToast("Course Deployed", "New academic track registered into core indexing matrix.", "success");
+            e.target.reset();
+            closeCourseCreationModal();
+            renderInstructorModule();
+        }
+
+        // Load repository instance dynamically during startup sequence execution
+        getDatabase();
+    </script>
+</body>
+</html>
